@@ -18,13 +18,19 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-@bot.tree.command(name='metar', description='Recherche le dernier METAR disponible d\'un aéroport.')
+@bot.tree.command(name = 'metar', description = 'Recherche le dernier METAR disponible d\'un aéroport.')
 @app_commands.describe(icao='ICAO')
 async def metar(interaction: discord.Interaction, icao:str):
 
     url = f'https://api.checkwx.com/metar/{icao}/decoded?x-api-key=92da5b1db838401d8f67720db4'
     response = requests.get(url)
-    json_metar=response.json()
-    print(json_metar["data"][0]['raw_text'])
+    metarjson = response.json()
+    airport = metarjson["data"][0]['station']['name']
+    metarraw = metarjson["data"][0]['raw_text']   
+    print(airport)
+    print(metarraw)
+    embed = discord.Embed(title=f'{airport}', color=0x2483c5)
+    embed.add_field(name='METAR', value=f'`{metarraw}`')
+    await interaction.response.send_message(embed=embed)
 
 bot.run(TOKEN)
