@@ -1,43 +1,30 @@
 import discord
-import responses
+from discord.ext import commands
+from discord import app_commands
 
-intents = discord.Intents.default()
-intents.message_content = True
+import main
+import requests
+import json
 
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix='!',intents=discord.Intents.default())
 
-async def send_message(message, user_message, is_private):
+TOKEN = 'MTExMzY5Nzc1OTIzNzc2NzE4OA.GiXTy4.Mg9xdOPe8_VWpz1eHSluuvXSTaplBFLLDeC5bY'
+
+@bot.event
+async def on_ready():
     try:
-        response = responses.get_reponse(user_message)
-        await message.author.send(response) if is_private else await message.channel.send(response)
-
+        synced = await bot.tree.sync()
+        print(f'Synced {len(synced)} commands')
     except Exception as e:
         print(e)
 
-def run_discord_bot():
-    TOKEN = 'MTExMzY5Nzc1OTIzNzc2NzE4OA.GiXTy4.Mg9xdOPe8_VWpz1eHSluuvXSTaplBFLLDeC5bY'
+@bot.tree.command(name='metar', description='Recherche le dernier METAR disponible d\'un aéroport.')
+@app_commands.describe(icao='ICAO')
+async def metar(interaction: discord.Interaction, icao:str):
 
-    @client.event
-    async def on_ready():
-        print(f'{client.user} is now running')
+    url = f'https://api.checkwx.com/metar/{icao}/decoded?x-api-key=92da5b1db838401d8f67720db4'
+    response = requests.get(url)
+    json_metar=response.json()
+    print(json_metar["data"][0]['raw_text'])
 
-
-    @client.event
-    async def on_message(message):
-        if message.author == client.user:
-            return
-
-        username = str(message.author)
-        user_message = str(message.content)
-        channel = str(message.content)
-
-
-        print(f'{username} said: "{user_message}" ({channel})')
-
-        if user_message[0] == '?':
-                user_message = user_message[1:]
-                await send_message(message, user_message, is_private=True)
-        else:
-                await send_message(message, user_message, is_private=False)
-
-    client.run(TOKEN)
+bot.run(TOKEN)
