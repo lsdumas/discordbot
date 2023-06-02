@@ -19,7 +19,7 @@ async def on_ready():
 @bot.tree.command(name = 'metar', description = 'Recherche le dernier METAR disponible d\'un aéroport.')
 @app_commands.describe(icao = 'ICAO de l\'aérport')
 async def metar(interaction: discord.Interaction, icao:str):
-
+    icao = icao
     url = f'https://api.checkwx.com/metar/{icao}/decoded?x-api-key={refs.apiKey}'
     response = requests.get(url)
     metarjson = response.json()
@@ -54,7 +54,7 @@ async def metar(interaction: discord.Interaction, icao:str):
 @bot.tree.command(name = 'taf', description = 'Recherche le TAF d\' un aéroport')
 @app_commands.describe(icao = 'ICAO de l\'aéroport')
 async def taf(interaction: discord.Interaction, icao:str):
-    
+    icao = icao
     url = f'https://api.checkwx.com/taf/{icao}/decoded?x-api-key={refs.apiKey}'
     response = requests.get(url)
     tafjson = response.json()
